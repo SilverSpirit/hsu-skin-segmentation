@@ -11,8 +11,8 @@ class HsuSegmenter:
         rows, cols, channs = np.shape(ycrcb_img)
         #print(rows, cols, channs)
         y, cr, cb = cv2.split(ycrcb_img)
-        cb_prime = np.copy(cb).astype(np.float)
-        cr_prime = np.copy(cr).astype(np.float)
+        cb_prime = np.copy(cb)
+        cr_prime = np.copy(cr)
         for i in range(0, rows):
             for j in range(0, cols):
                 y_val = y[i, j]
@@ -96,6 +96,45 @@ class HsuSegmenter:
             elif y > kh:
                 spread_of_cluster_r += whcr + ((ymax-y) * (wcr - whcr) / (ymax - kh))
             return (chroma - center_chroma_r) * (wcr / spread_of_cluster_r) + 154
+    
+    def get_mask_vec(self, img):
+        ycrcb_img = self.preprocess(img)
+        rows, cols, channs = np.shape(ycrcb_img)
+        #print(rows, cols, channs)
+        y, cr, cb = cv2.split(ycrcb_img)
+        cb_prime = np.copy(cb)
+        cr_prime = np.copy(cr)
+        
+        low_ind = np.where(y < kl, True, False)
+        high_ind = np.where(y > kh, True, False)
+        change_ind = np.logical_or(low_ind, high_ind)
+        
+        center_chroma_b = 180 * np.ones(np.shape(y))
+        center_chroma_b[low_ind] += ((kl - y[low_ind]) * (118 - 108)) / (kl - ymin)
+        center_chroma_b[high_ind] += ((y[high_ind] - kh) * (118 - 108)) / (ymax - kh)
+        spread_of_cluster_b = np.zeros(np.shape(y))
+        spread_of_cluster_b[low_ind] += wlcb + ((y[low_ind] - ymin) * (wcb - wlcb) / (kl - ymin))
+        spread_of_cluster_b[high_ind] += whcb + ((ymax - y[high_ind]) * (wcb - whcb) / (ymax - kh))
+        cb_prime[change_ind] = (cb_prime[change_ind] - center_chroma_b[change_ind]) * (wcb / spread_of_cluster_b[change_ind]) + 108
+
+        center_chroma_r = 154 * np.ones(np.shape(y))
+        center_chroma_r[low_ind] += ((kl - y[low_ind]) * (154 - 144)) / (kl - ymin)
+        center_chroma_r[high_ind] += ((y[high_ind] - kh) * (154 - 132)) / (ymax - kh)
+        spread_of_cluster_r = np.zeros(np.shape(y))
+        spread_of_cluster_r[low_ind] += wlcr + ((y[low_ind] - ymin) * (wcr - wlcr) / (kl - ymin))
+        spread_of_cluster_r[high_ind] += whcb + ((ymax - y[high_ind]) * (wcb - whcb) / (ymax - kh))
+        cr_prime[change_ind] = (cr_prime[change_ind] - center_chroma_r[change_ind]) * (wcr / spread_of_cluster_r[change_ind]) + 154
+        
+        
+        x = theta_cos * (cb_prime - cx) + theta_sin * (cr_prime - cy)
+        y = -theta_sin * (cb_prime - cx) + theta_cos * (cr_prime - cy)
+        
+        # print(cb_prime) 
+        # print(cr_prime) 
+        # print(y)
+        # print(x) 
+        eval_mat = ((((x - ecx) / a) ** 2 + ((y - ecy) / b) ** 2))
+        return np.where(eval_mat <= 1, 255, 0).astype(np.uint8)
 
     def conv_rgb_ycbcr(self, image):
         b, g, r = cv2.split(image)
