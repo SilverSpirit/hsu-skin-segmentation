@@ -29,7 +29,7 @@ class HsuSegmenter:
         # print(y)
         # print(x) 
         eval_mat = ((((x - ecx) / a) ** 2 + ((y - ecy) / b) ** 2))
-        return np.where(eval_mat <= 1, 255, 0)
+        return np.where(eval_mat <= 1, 255, 0).astype(np.uint8)
         
     def preprocess(self, img):
         ycrcb_img = cv2.cvtColor(img, cv2.COLOR_BGR2YCrCb)
