@@ -9,14 +9,17 @@ class HsuSegmenter:
     def get_mask(self, img):
         ycrcb_img = self.preprocess(img)
         rows, cols, channs = np.shape(ycrcb_img)
+        print(np.shape(ycrcb_img))
+        y, cr, cb = cv2.split(ycrcb_img)
         cb_prime = np.copy(cb)
         cr_prime = np.copy(cr)
         for i in range(0, rows):
             for j in range(0, cols):
                 y_val = y[i, j]
                 if y_val < kl or y_val > kh:
-                    cb_prime = self.get_chroma_center(y, 'cb')
-                    cr_prime = self.get_chroma_center(y, 'cr')
+                    cb_prime = self.get_trans_chroma(cb[i,j], y_val, 'cb')
+                    cr_prime = self.get_trans_chroma(cr[i,j], y_val, 'cr')
+
         return img # this will return the mask, currently returns the image
         
     def preprocess(self, img):
@@ -36,6 +39,7 @@ class HsuSegmenter:
         #print(np.min(cr), np.max(cr), '\n')
         #print(np.min(cb), np.max(cb))
         return cv2.merge((y, cr, cb))
+        # return y, cr, cb
 
     def normalize_range(self, col_channel, new_min, new_max, 
                         old_min = 0, old_max = 255):
@@ -54,12 +58,41 @@ class HsuSegmenter:
             # avg_r = np.sum(r[ind]) / len(r[ind])
             # self.normalize_range()
         
-    def get_trans_chroma(self, y, chann):
+    def get_trans_chroma(self, chroma, y, chann):
         if chann == 'cb':
-            pass
-        if chann == 'cr'
-            pass
-        
+            center_chroma_b = 108
+            if y < kl:
+                center_chroma_b += ((kl-y) * (118-108)) / (kl - ymin)
+            elif y > kh:
+                center_chroma_b += ((y-kh) * (118 - 108)) / (ymax - kh)
+            else:
+                center_chroma_b = 0
+
+            spread_of_cluster_b = 0
+            if y < kl:
+                spread_of_cluster_b += wlcb + ((y-ymin) * (wcb -wlcb) / (kl-ymin))
+            elif y > kh:
+                spread_of_cluster_b += whcb + ((ymax-y) * (wcb -whcb) / (ymax-kh))
+
+            return (chroma - center_chroma_b) * wcb / spread_of_cluster_b
+
+        elif chann == 'cr':
+            center_chroma_r = 154
+            if y < kl:
+                center_chroma_r -= ((kl - y) * (154 - 144)) / (kl - ymin)
+            elif y > kh:
+                center_chroma_r += ((y - kh) * (154 - 132)) / (ymax - kh)
+            else:
+                center_chroma_r = 0
+
+            spread_of_cluster_r = 0
+            if y < kl:
+                spread_of_cluster_r += wlcr + ((y - ymin) * (wcr - wlcr) / (kl - ymin))
+            elif y > kh:
+                spread_of_cluster_r += whcr + ((ymax-y) * (wcr -whcr) / (ymax-kh))
+
+            return (chroma - center_chroma_r) * wcr / spread_of_cluster_r
+
     def conv_rgb_ycbcr(self, image):
         b, g, r = cv2.split(image)
         print(np.min(b), np.max(b))
