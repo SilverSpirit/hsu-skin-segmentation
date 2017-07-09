@@ -1,6 +1,6 @@
 import numpy as np
 import cv2
-import consts as *
+from constants import *
 
 class HsuSegmenter:
     def __init__(self):
@@ -9,7 +9,6 @@ class HsuSegmenter:
     def get_mask(self, img):
         ycrcb_img = self.preprocess(img)
         return img # this will return the mask, currently returns the image
-<<<<<<< HEAD
     
     def preprocess(self, img):
         ycrcb_img = cv2.cvtColor(img, cv2.COLOR_BGR2YCrCb)
@@ -20,16 +19,11 @@ class HsuSegmenter:
         cv2.normalize(cr, cr, 16, 240, cv2.NORM_MINMAX)
         cv2.normalize(cb, cb, 16, 240, cv2.NORM_MINMAX)
         return cv2.merge((y, cr, cb))
-    
-=======
 
-
-    def get_center_b_chroma(self, Y):
-        center = 108
-        if Y < kl:
-            center += ((kl - Y) * (118-108)) / (kl - ymin)
-        elif kh < Y:
-            center += ((Y - kh) * (118 - 108)) / (ymax - kh)
-
-        return center
->>>>>>> 245d582a809abd8dae4c7acb99ffd2c145a2508a
+    # def get_center_b_chroma(self, Y): ## CORRECT THIS
+        # center = 108
+        # if Y < kl:
+            # center += ((kl - Y) * (118-108)) / (kl - ymin)
+        # elif kh < Y:
+            # center += ((Y - kh) * (118 - 108)) / (ymax - kh)
+        # return center
