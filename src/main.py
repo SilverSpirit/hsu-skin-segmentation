@@ -9,7 +9,7 @@ def main():
     output_img = h.get_mask(input_img)
     # cv2.imshow('Output', output_img)
     # cv2.waitKey(0)
-    h.conv_rgb_ycbcr(input_img)
+    # h.conv_rgb_ycbcr(input_img)
 
 
 if __name__ == '__main__':

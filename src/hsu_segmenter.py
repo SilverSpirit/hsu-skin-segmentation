@@ -8,8 +8,17 @@ class HsuSegmenter:
     
     def get_mask(self, img):
         ycrcb_img = self.preprocess(img)
+        rows, cols, channs = np.shape(ycrcb_img)
+        cb_prime = np.copy(cb)
+        cr_prime = np.copy(cr)
+        for i in range(0, rows):
+            for j in range(0, cols):
+                y_val = y[i, j]
+                if y_val < kl or y_val > kh:
+                    cb_prime = self.get_chroma_center(y, 'cb')
+                    cr_prime = self.get_chroma_center(y, 'cr')
         return img # this will return the mask, currently returns the image
-    
+        
     def preprocess(self, img):
         ycrcb_img = cv2.cvtColor(img, cv2.COLOR_BGR2YCrCb)
         y, cr, cb = cv2.split(ycrcb_img)
@@ -22,10 +31,10 @@ class HsuSegmenter:
         cr = (self.normalize_range(cr, 16, 240)).astype(int)
         cb = (self.normalize_range(cb, 16, 240)).astype(int)
 
-        print(y)
-        print(np.min(y), np.max(y), '\n')
-        print(np.min(cr), np.max(cr), '\n')
-        print(np.min(cb), np.max(cb))
+        #print(y)
+        #print(np.min(y), np.max(y), '\n')
+        #print(np.min(cr), np.max(cr), '\n')
+        #print(np.min(cb), np.max(cb))
         return cv2.merge((y, cr, cb))
 
     def normalize_range(self, col_channel, new_min, new_max, 
@@ -45,7 +54,12 @@ class HsuSegmenter:
             # avg_r = np.sum(r[ind]) / len(r[ind])
             # self.normalize_range()
         
-
+    def get_trans_chroma(self, y, chann):
+        if chann == 'cb':
+            pass
+        if chann == 'cr'
+            pass
+        
     def conv_rgb_ycbcr(self, image):
         b, g, r = cv2.split(image)
         print(np.min(b), np.max(b))
