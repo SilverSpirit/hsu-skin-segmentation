@@ -6,8 +6,6 @@ wlcr = 20
 whcr = 10
 kl = 125
 kh = 188
-
-
 ymin = 16
 ymax = 235
 cx = 109.38
