@@ -9,18 +9,27 @@ class HsuSegmenter:
     def get_mask(self, img):
         ycrcb_img = self.preprocess(img)
         rows, cols, channs = np.shape(ycrcb_img)
-        print(np.shape(ycrcb_img))
+        #print(rows, cols, channs)
         y, cr, cb = cv2.split(ycrcb_img)
-        cb_prime = np.copy(cb)
-        cr_prime = np.copy(cr)
+        cb_prime = np.copy(cb).astype(np.float)
+        cr_prime = np.copy(cr).astype(np.float)
         for i in range(0, rows):
             for j in range(0, cols):
                 y_val = y[i, j]
                 if y_val < kl or y_val > kh:
-                    cb_prime = self.get_trans_chroma(cb[i,j], y_val, 'cb')
-                    cr_prime = self.get_trans_chroma(cr[i,j], y_val, 'cr')
-
-        return img # this will return the mask, currently returns the image
+                    cb_prime[i, j] = self.get_trans_chroma(cb[i,j], y_val, 'cb')
+                    cr_prime [i, j]= self.get_trans_chroma(cr[i,j], y_val, 'cr')
+        
+        
+        x = theta_cos * (cb_prime - cx) + theta_sin * (cr_prime - cy)
+        y = -theta_sin * (cb_prime - cx) + theta_cos * (cr_prime - cy)
+        
+        # print(cb_prime) 
+        # print(cr_prime) 
+        # print(y)
+        # print(x) 
+        eval_mat = ((((x - ecx) / a) ** 2 + ((y - ecy) / b) ** 2))
+        return np.where(eval_mat <= 1, 255, 0)
         
     def preprocess(self, img):
         ycrcb_img = cv2.cvtColor(img, cv2.COLOR_BGR2YCrCb)
@@ -62,17 +71,15 @@ class HsuSegmenter:
         if chann == 'cb':
             center_chroma_b = 108
             if y < kl:
-                center_chroma_b += ((kl-y) * (118-108)) / (kl - ymin)
+                center_chroma_b += ((kl - y) * (118 - 108)) / (kl - ymin)
             elif y > kh:
-                center_chroma_b += ((y-kh) * (118 - 108)) / (ymax - kh)
-            else:
-                center_chroma_b = 0
+                center_chroma_b += ((y - kh) * (118 - 108)) / (ymax - kh)
 
             spread_of_cluster_b = 0
             if y < kl:
-                spread_of_cluster_b += wlcb + ((y-ymin) * (wcb -wlcb) / (kl-ymin))
+                spread_of_cluster_b += wlcb + ((y - ymin) * (wcb - wlcb) / (kl - ymin))
             elif y > kh:
-                spread_of_cluster_b += whcb + ((ymax-y) * (wcb -whcb) / (ymax-kh))
+                spread_of_cluster_b += whcb + ((ymax - y) * (wcb - whcb) / (ymax - kh))
 
             return (chroma - center_chroma_b) * wcb / spread_of_cluster_b
 
@@ -82,16 +89,15 @@ class HsuSegmenter:
                 center_chroma_r -= ((kl - y) * (154 - 144)) / (kl - ymin)
             elif y > kh:
                 center_chroma_r += ((y - kh) * (154 - 132)) / (ymax - kh)
-            else:
-                center_chroma_r = 0
 
             spread_of_cluster_r = 0
             if y < kl:
                 spread_of_cluster_r += wlcr + ((y - ymin) * (wcr - wlcr) / (kl - ymin))
             elif y > kh:
-                spread_of_cluster_r += whcr + ((ymax-y) * (wcr -whcr) / (ymax-kh))
+                spread_of_cluster_r += whcr + ((ymax-y) * (wcr - whcr) / (ymax - kh))
 
-            return (chroma - center_chroma_r) * wcr / spread_of_cluster_r
+        c_kh = 108 if chann == 'cb' else 154
+        return (chroma - center_chroma_r) * (wcr / spread_of_cluster_r) + c_kh
 
     def conv_rgb_ycbcr(self, image):
         b, g, r = cv2.split(image)
