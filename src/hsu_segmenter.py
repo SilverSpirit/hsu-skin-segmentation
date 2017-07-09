@@ -81,7 +81,7 @@ class HsuSegmenter:
             elif y > kh:
                 spread_of_cluster_b += whcb + ((ymax - y) * (wcb - whcb) / (ymax - kh))
 
-            return (chroma - center_chroma_b) * wcb / spread_of_cluster_b
+            return (chroma - center_chroma_b) * (wcb / spread_of_cluster_b) + 108
 
         elif chann == 'cr':
             center_chroma_r = 154
@@ -95,9 +95,7 @@ class HsuSegmenter:
                 spread_of_cluster_r += wlcr + ((y - ymin) * (wcr - wlcr) / (kl - ymin))
             elif y > kh:
                 spread_of_cluster_r += whcr + ((ymax-y) * (wcr - whcr) / (ymax - kh))
-
-        c_kh = 108 if chann == 'cb' else 154
-        return (chroma - center_chroma_r) * (wcr / spread_of_cluster_r) + c_kh
+            return (chroma - center_chroma_r) * (wcr / spread_of_cluster_r) + 154
 
     def conv_rgb_ycbcr(self, image):
         b, g, r = cv2.split(image)
