@@ -45,3 +45,21 @@ class HsuSegmenter:
             # avg_r = np.sum(r[ind]) / len(r[ind])
             # self.normalize_range()
         
+
+    def conv_rgb_ycbcr(self, image):
+        b, g, r = cv2.split(image)
+        print(np.min(b), np.max(b))
+        print(np.min(g), np.max(g))
+        print(np.min(r), np.max(r))
+
+        y = (16 + 0.257 * r + 0.504 * g + 0.098 * b).astype(int)
+        cb = (128 - 0.148 * r - 0.291 * g + 0.439 * b).astype(int)
+        cr = (128 + 0.439 * r - 0.368 * g - 0.071 * b).astype(int)
+
+        # print(y, '\n')
+        # print(cb, '\n')
+        # print(cr, '\n')
+        print(np.min(y), np.max(y))
+        print(np.min(cb), np.max(cb))
+        print(np.min(cr), np.max(cr))
+
