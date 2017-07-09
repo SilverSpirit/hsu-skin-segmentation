@@ -1,3 +1,5 @@
+import math
+
 wcb = 46.97
 wlcb = 23
 whcb = 14
@@ -17,3 +19,5 @@ ecx = 1.60
 ecy = 2.41
 a = 25.39
 b = 14.03
+theta_sin = math.sin(theta)
+theta_cos = math.cos(theta)
