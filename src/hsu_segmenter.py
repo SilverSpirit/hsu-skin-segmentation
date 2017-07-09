@@ -28,14 +28,20 @@ class HsuSegmenter:
         print(np.min(cb), np.max(cb))
         return cv2.merge((y, cr, cb))
 
-    def normalize_range(self, col_channel, new_max, new_min):
-        old_min, old_max = 0, 255
-        return ((col_channel - old_min) / (old_max - old_min)) * (new_max - new_min) + new_min
+    def normalize_range(self, col_channel, new_min, new_max, 
+                        old_min = 0, old_max = 255):
+        return (((col_channel - old_min) / (old_max - old_min)) 
+                * (new_max - new_min) + new_min)
 
-    # def get_center_b_chroma(self, Y): ## CORRECT THIS
-        # center = 108
-        # if Y < kl:
-            # center += ((kl - Y) * (118-108)) / (kl - ymin)
-        # elif kh < Y:
-            # center += ((Y - kh) * (118 - 108)) / (ymax - kh)
-        # return center
+    # def lighting_correction(self, img):
+        # b, g, r = cv2.split(img)
+        # ycrcb_img = cv2.cvtColor(img, cv2.COLOR_BGR2YCrCb)
+        # top_y = 0.95 * np.amax(ycrcb_img[:, :, 0])
+        # ind = np.where(ycrcb_img[:, :, 0] >= top_y, True, False)
+        
+        # if np.sum(ind) >= 100:
+            # avg_b = np.sum(b[ind]) / len(b[ind])
+            # avg_g = np.sum(g[ind]) / len(g[ind])
+            # avg_r = np.sum(r[ind]) / len(r[ind])
+            # self.normalize_range()
+        
