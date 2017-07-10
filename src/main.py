@@ -17,13 +17,6 @@ def main():
 
     take_cam_input()
 
-def hsv_seg(img):
-    hsv_img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-    hsv_lower = (0, 0, 0)
-    hsv_upper = (255, 255, 255)
-    mask = cv2.inRange(hsv_img, hsv_lower, hsv_upper)
-    return mask
-
 def take_cam_input():
     cap = cv2.VideoCapture(0)
     #h = HsuSegmenter()
