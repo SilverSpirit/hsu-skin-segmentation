@@ -7,19 +7,22 @@ from hsu_with_correction import ImprovedHSUSegmenter
 def main():
     f_name = sys.argv[1]
     input_img = cv2.imread(f_name)
-    # h = HsuSegmenter()
+    h = HsuSegmenter()
     # h1 = HSVSegmenter()
-    # output_img = h.get_mask_vec(input_img)
+    output_img = h.get_mask_vec(input_img)
     # output_img_hsv = h1.get_mask(input_img)
-    # cv2.imshow('Output', output_img)
+    cv2.imshow('Output', output_img)
     # cv2.imshow('Output hsv', output_img_hsv)
-    # cv2.waitKey(0)
+    cv2.waitKey(0)
     # h.conv_rgb_ycbcr(input_img)
 
     # take_cam_input()
 
-    h = ImprovedHSUSegmenter()
-    h.lighting_correction(input_img)
+    # h = ImprovedHSUSegmenter()
+    # corrected_img = h.lighting_correction(input_img)
+    # output_img = h.get_mask_vec(corrected_img)
+    # cv2.imshow('Output', output_img)
+    # cv2.waitKey(0)
 
 def take_cam_input():
     cap = cv2.VideoCapture(0)

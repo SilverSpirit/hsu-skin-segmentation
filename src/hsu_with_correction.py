@@ -26,6 +26,7 @@ class ImprovedHSUSegmenter():
 
         cv2.imshow('Skin Region 2', im2)
         cv2.waitKey(0)
+        return im2
 
     def preprocess(self, img):
         ycrcb_img = cv2.cvtColor(img, cv2.COLOR_BGR2YCrCb)
@@ -59,10 +60,12 @@ class ImprovedHSUSegmenter():
         high_ind_b = np.where(y > kh, True, False)
         change_ind_b = np.logical_or(low_ind_b, high_ind_b)
 
+        center_low_ind_b = np.where(y < kl, True, False)
+        center_high_ind_b = np.where(y >= kl, True, False)
         center_chroma_b = 108 * np.ones(np.shape(y))
-        center_chroma_b[low_ind_b] = center_chroma_b[low_ind_b] + (((kl - y[low_ind_b]) * (118 - 108)) / (kl - ymin))
+        center_chroma_b[center_low_ind_b] = center_chroma_b[center_low_ind_b] + (((kl - y[center_low_ind_b]) * (118 - 108)) / (kl - ymin))
         # center_chroma_b[high_ind_b] = center_chroma_b[high_ind_b] + (((y[high_ind_b] - kh) * (118 - 108)) / (ymax - kh))
-        center_chroma_b[high_ind_b] = -0.0007 * np.square(y[high_ind_b]-170) + 120
+        center_chroma_b[center_high_ind_b] = -0.0007 * np.square(y[center_high_ind_b]-170) + 120
 
         spread_of_cluster_b = np.zeros(np.shape(y))
         spread_of_cluster_b[low_ind_b] = wlcb + ((y[low_ind_b] - ymin) * (wcb - wlcb) / (kl - ymin))
@@ -79,10 +82,13 @@ class ImprovedHSUSegmenter():
         high_ind_r = np.where(y > kh, True, False)
         change_ind_r = np.logical_or(low_ind_r, high_ind_r)
 
+
+        center_low_ind_r = np.where(y<kl, True, False)
+        center_high_ind_r = np.where(y>=kl, True, False)
         center_chroma_r = 154 * np.ones(np.shape(y))
-        center_chroma_r[low_ind_r] = center_chroma_r[low_ind_r] - (((kl - y[low_ind_r]) * (154 - 144)) / (kl - ymin))
+        center_chroma_r[center_low_ind_r] = center_chroma_r[center_low_ind_r] - (((kl - y[center_low_ind_r]) * (154 - 144)) / (kl - ymin))
         # center_chroma_r[high_ind_r] = center_chroma_r[high_ind_r] + (((y[high_ind_r] - kh) * (154 - 132)) / (ymax - kh))
-        center_chroma_r[high_ind_r] = -0.0017 * np.square(y[high_ind_b] - 150) + 150
+        center_chroma_r[center_high_ind_r] = -0.0017 * np.power((y[center_high_ind_r] - 150), 2) + 150
 
         spread_of_cluster_r = np.zeros(np.shape(y))
         spread_of_cluster_r[low_ind_r] = wlcr + ((y[low_ind_r] - ymin) * (wcr - wlcr) / (kl - ymin))
@@ -109,4 +115,9 @@ class ImprovedHSUSegmenter():
         y = (16 + 0.257 * r + 0.504 * g + 0.098 * b).astype(int)
         cb = (128 - 0.148 * r - 0.291 * g + 0.439 * b).astype(int)
         cr = (128 + 0.439 * r - 0.368 * g - 0.071 * b).astype(int)
+
+    def normalize_range(self, col_channel, new_min, new_max,
+                        old_min = 0, old_max = 255):
+        return (((col_channel - old_min) / (old_max - old_min))
+                * (new_max - new_min) + new_min)
 
