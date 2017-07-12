@@ -49,6 +49,31 @@ class HsuSegmenter:
         #print(np.min(cb), np.max(cb))
         return cv2.merge((y, cr, cb))
         # return y, cr, cb
+        
+    def lighting_compensation(self, img):
+        ycrcb_img = cv2.cvtColor(img, cv2.COLOR_BGR2YCrCb)
+        y, cr, cb = cv2.split(ycrcb_img)
+        rows, cols = np.shape(y)
+        area = rows * cols 
+        skin_count = np.sum(self.get_mask_vec(img).astype(bool))
+        bright_ind = np.where(y >= 0.95 * 255, True, False)
+        top_count = np.sum(bright_ind)
+        
+        if skin_count > 0.75 * area or top_count < 100:
+            print('not correcting')
+            return img
+        
+        b, g, r = cv2.split(img)
+        mean_b = int(np.mean(b[bright_ind]))
+        mean_g = int(np.mean(g[bright_ind]))
+        mean_r = int(np.mean(r[bright_ind]))
+        
+        b = self.normalize_range(b, 0, mean_b)
+        g = self.normalize_range(g, 0, mean_g)
+        r = self.normalize_range(r, 0, mean_r)
+        
+        return cv2.merge((b,g,r))
+        
 
     def normalize_range(self, col_channel, new_min, new_max, 
                         old_min = 0, old_max = 255):

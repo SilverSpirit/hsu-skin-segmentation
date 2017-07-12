@@ -8,21 +8,20 @@ def main():
     f_name = sys.argv[1]
     input_img = cv2.imread(f_name)
     h = HsuSegmenter()
-    # h1 = HSVSegmenter()
+    
     output_img = h.get_mask_vec(input_img)
-    # output_img_hsv = h1.get_mask(input_img)
-    cv2.imshow('Output', output_img)
-    # cv2.imshow('Output hsv', output_img_hsv)
-    #cv2.waitKey(0)
-    # h.conv_rgb_ycbcr(input_img)
-
-    # take_cam_input()
-
-    h1 = ImprovedHSUSegmenter()
-    #corrected_img = h1.lighting_correction(input_img)
-    output_img_1 = h1.get_mask_vec(input_img)
-    cv2.imshow('Output 1', output_img_1)
+    cv2.imshow('Output without lighting', output_img)
+    
+    input_img_2 = h.lighting_compensation(input_img)
+    output_img_1 = h.get_mask_vec(input_img_2)
+    cv2.imshow('Lighting corrected output', output_img_1)
+    
+    # h1 = ImprovedHSUSegmenter()
+    # output_img_1 = h1.get_mask_vec(input_img)
+    # cv2.imshow('Output 1', output_img_1)
     cv2.waitKey(0)
+    
+    # take_cam_input()
 
 def take_cam_input():
     cap = cv2.VideoCapture(0)
