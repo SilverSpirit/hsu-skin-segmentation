@@ -59,7 +59,7 @@ class HsuSegmenter:
         bright_ind = np.where(y >= 0.95 * 255, True, False)
         top_count = np.sum(bright_ind)
         
-        if skin_count > 0.75 * area or top_count < 100:
+        if skin_count > 0.5 * area or top_count < 100:
             print('not correcting')
             return img
         
