@@ -15,7 +15,8 @@ def main():
     input_img_2 = h.lighting_compensation(input_img)
     output_img_1 = h.get_mask_vec(input_img_2)
     cv2.imshow('Lighting corrected output', output_img_1)
-    
+    # cv2.imshow('Lighting corrected output', input_img_2)
+
     # h1 = ImprovedHSUSegmenter()
     # output_img_1 = h1.get_mask_vec(input_img)
     # cv2.imshow('Output 1', output_img_1)

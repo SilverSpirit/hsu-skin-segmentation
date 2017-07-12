@@ -67,11 +67,10 @@ class HsuSegmenter:
         mean_b = int(np.mean(b[bright_ind]))
         mean_g = int(np.mean(g[bright_ind]))
         mean_r = int(np.mean(r[bright_ind]))
-        
-        b = self.normalize_range(b, 0, mean_b)
-        g = self.normalize_range(g, 0, mean_g)
-        r = self.normalize_range(r, 0, mean_r)
-        
+
+        b = np.array(self.normalize_range(b, 0, 255, 0, mean_b)).astype(np.uint8)
+        g = np.array(self.normalize_range(g, 0, 255, 0, mean_g)).astype(np.uint8)
+        r = np.array(self.normalize_range(r, 0, 255, 0, mean_r)).astype(np.uint8)
         return cv2.merge((b,g,r))
         
 
